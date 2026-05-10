@@ -15,8 +15,6 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact: mcp-omni-linux-amd64
-          - os: macos-13
-            artifact: mcp-omni-darwin-amd64
           - os: macos-latest
             artifact: mcp-omni-darwin-arm64
 
