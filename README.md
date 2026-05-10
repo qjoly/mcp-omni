@@ -29,17 +29,7 @@ pip install -e .
 
 ## Configuration
 
-### Claude Code (CLI) — automatic
-
-```bash
-mcp-omni install
-```
-
-This runs an interactive prompt asking for your Omni endpoint and service account key, then calls `claude mcp add` to register the server automatically. Restart Claude Code afterwards.
-
-### Claude Desktop — manual
-
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+Add to your Claude Desktop `claude_desktop_config.json`:
 
 ```json
 {
@@ -55,9 +45,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 }
 ```
 
-### Service account key
-
-Generate one with:
+Generate a service account key with:
 
 ```bash
 omnictl serviceaccount create my-mcp-account --role Admin --ttl 8760h

@@ -354,60 +354,8 @@ def _dispatch_sync(name: str, args: dict[str, Any]) -> str:
         return f"Error: {e}"
 
 
-def _install() -> None:
-    """Interactive installer: register mcp-omni in Claude Code via `claude mcp add`."""
-    import shutil
-    import sys
-
-    if not shutil.which("claude"):
-        print("Error: 'claude' CLI not found in PATH.", file=sys.stderr)
-        print("Install Claude Code first: https://claude.ai/code", file=sys.stderr)
-        sys.exit(1)
-
-    binary = shutil.which("mcp-omni") or sys.argv[0]
-
-    print("=== mcp-omni installer for Claude Code ===\n")
-
-    endpoint = input("Omni endpoint (e.g. https://omni.example.com): ").strip()
-    if not endpoint:
-        print("Error: endpoint cannot be empty.", file=sys.stderr)
-        sys.exit(1)
-
-    sa_key = input("Service account key (base64): ").strip()
-    if not sa_key:
-        print("Error: service account key cannot be empty.", file=sys.stderr)
-        sys.exit(1)
-
-    scope = input("Scope [user/project] (default: user): ").strip() or "user"
-    if scope not in ("user", "project", "local"):
-        print(f"Warning: unknown scope '{scope}', defaulting to 'user'.")
-        scope = "user"
-
-    cmd = [
-        "claude", "mcp", "add",
-        "--scope", scope,
-        "--env", f"OMNI_ENDPOINT={endpoint}",
-        "--env", f"OMNI_SERVICE_ACCOUNT_KEY={sa_key}",
-        "omni",
-        "--",
-        binary,
-    ]
-
-    print(f"\nRunning: {' '.join(cmd[:7])} omni -- {binary}\n")
-    result = subprocess.run(cmd)
-    if result.returncode == 0:
-        print("\n✓ mcp-omni registered. Restart Claude Code to pick up the new server.")
-    else:
-        print("\n✗ Registration failed.", file=sys.stderr)
-        sys.exit(result.returncode)
-
-
 def main() -> None:
-    import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "install":
-        _install()
-    else:
-        asyncio.run(_run_server())
+    asyncio.run(_run_server())
 
 
 async def _run_server() -> None:
