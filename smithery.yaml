@@ -16,17 +16,13 @@ startCommand:
         description: "Base64-encoded service account key (generate with: omnictl serviceaccount create my-mcp --role Admin --ttl 8760h)"
   commandFunction: |
     (config) => ({
-      command: "uvx",
-      args: ["mcp-omni"],
+      command: "sh",
+      args: ["-c", "pip install -q mcp-omni && mcp-omni"],
       env: {
         OMNI_ENDPOINT: config.omniEndpoint,
         OMNI_SERVICE_ACCOUNT_KEY: config.omniServiceAccountKey,
       },
     })
-
-# Static server card hosted on GitHub Pages — bypasses Smithery's scan
-# (Smithery can't run uvx on their scanning infrastructure)
-# Served at: https://qjoly.github.io/mcp-omni/.well-known/mcp/server-card.json
 
 exampleConfig:
   omniEndpoint: "https://omni.example.com"
