@@ -15,9 +15,20 @@ Connects Claude Desktop (or any MCP client) directly to the Omni gRPC API using 
 
 ## Installation
 
-### Pre-built binary
+### Via Smithery (recommended)
 
-Download the latest binary for your platform from the [Releases](../../releases) page.
+[![smithery badge](https://smithery.ai/badge/@qjoly/mcp-omni)](https://smithery.ai/server/@qjoly/mcp-omni)
+
+Install directly from [Smithery](https://smithery.ai/server/@qjoly/mcp-omni) — it handles configuration and registration in your MCP client automatically.
+
+### Pre-built binary (macOS / Linux)
+
+```bash
+brew tap qjoly/tap
+brew install qjoly/tap/mcp-omni
+```
+
+Or download the latest binary from the [Releases](../../releases) page.
 
 ### From source
 

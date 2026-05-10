@@ -1,0 +1,29 @@
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required:
+      - omniEndpoint
+      - omniServiceAccountKey
+    properties:
+      omniEndpoint:
+        type: string
+        title: Omni Endpoint
+        description: "URL of your Omni instance (e.g. https://omni.example.com)"
+      omniServiceAccountKey:
+        type: string
+        title: Service Account Key
+        description: "Base64-encoded service account key (generate with: omnictl serviceaccount create my-mcp --role Admin --ttl 8760h)"
+  commandFunction: |
+    (config) => ({
+      command: "uvx",
+      args: ["--from", "git+https://github.com/qjoly/mcp-omni", "mcp-omni"],
+      env: {
+        OMNI_ENDPOINT: config.omniEndpoint,
+        OMNI_SERVICE_ACCOUNT_KEY: config.omniServiceAccountKey,
+      },
+    })
+
+exampleConfig:
+  omniEndpoint: "https://omni.example.com"
+  omniServiceAccountKey: "eyJuYW1lIjoibXktbWNwIiwicGdwX2tleSI6Ii0tLS0tQkVHSU4..."
