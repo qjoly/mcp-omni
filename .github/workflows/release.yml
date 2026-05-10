@@ -62,3 +62,23 @@ jobs:
         with:
           files: dist/**/*
           generate_release_notes: true
+
+  publish-pypi:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Build wheel
+        run: |
+          pip install hatchling
+          python -m hatchling build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

@@ -17,7 +17,7 @@ startCommand:
   commandFunction: |
     (config) => ({
       command: "uvx",
-      args: ["--from", "git+https://github.com/qjoly/mcp-omni", "mcp-omni"],
+      args: ["mcp-omni"],
       env: {
         OMNI_ENDPOINT: config.omniEndpoint,
         OMNI_SERVICE_ACCOUNT_KEY: config.omniServiceAccountKey,
