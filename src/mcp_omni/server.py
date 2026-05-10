@@ -11,17 +11,7 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
-from mcp_omni.omni_client import (
-    OmniClient,
-    CLUSTER_TYPE,
-    CLUSTER_STATUS_TYPE,
-    MACHINE_TYPE,
-    MACHINE_STATUS_TYPE,
-    MACHINE_SET_TYPE,
-    CLUSTER_MACHINE_TYPE,
-    CLUSTER_MACHINE_STATUS_TYPE,
-    SERVICE_ACCOUNT_STATUS_TYPE,
-)
+from mcp_omni.omni_client import OmniClient, SERVICE_ACCOUNT_STATUS_TYPE
 
 OMNI_ENDPOINT = os.environ.get("OMNI_ENDPOINT", "")
 OMNI_SERVICE_ACCOUNT_KEY = os.environ.get("OMNI_SERVICE_ACCOUNT_KEY", "")
