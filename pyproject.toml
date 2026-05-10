@@ -25,3 +25,6 @@ mcp-omni = "mcp_omni.server:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/mcp_omni"]
+
+[tool.ruff]
+exclude = ["src/mcp_omni/proto_gen/"]

@@ -5,8 +5,6 @@ import hashlib
 import json
 import struct
 import time
-from typing import Any
-
 import grpc
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
@@ -61,9 +59,9 @@ class OmniSigner:
     @staticmethod
     def _parse_pgp_key(armored: str) -> tuple[Ed25519PrivateKey, str]:
         body_lines = [
-            l for l in armored.split("\n")
-            if l and not l.startswith("---") and not l.startswith("Version")
-            and not l.startswith("Comment") and not l.startswith("=")
+            line for line in armored.split("\n")
+            if line and not line.startswith("---") and not line.startswith("Version")
+            and not line.startswith("Comment") and not line.startswith("=")
         ]
         raw = base64.b64decode("".join(body_lines))
 
