@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: mcp-omni-linux-amd64
+          - os: macos-13
+            artifact: mcp-omni-darwin-amd64
+          - os: macos-latest
+            artifact: mcp-omni-darwin-arm64
+
+    runs-on: ${{ matrix.os }}
+    name: Build (${{ matrix.artifact }})
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[build]"
+
+      - name: Build binary
+        run: |
+          pyinstaller mcp_omni.spec --distpath dist --workpath /tmp/build
+
+      - name: Rename artifact
+        shell: bash
+        run: mv dist/mcp-omni dist/${{ matrix.artifact }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/${{ matrix.artifact }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*
+          generate_release_notes: true

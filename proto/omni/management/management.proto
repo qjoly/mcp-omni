@@ -1,0 +1,376 @@
+syntax = "proto3";
+package management;
+
+option go_package = "github.com/siderolabs/omni/client/api/omni/management";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "common/common.proto";
+
+message KubeconfigResponse {
+  // Kubeconfig is the kubeconfig for the cluster.
+  bytes kubeconfig = 1;
+}
+
+message TalosconfigResponse {
+  // talosconfig is the talos client configuration to access the cluster via the proxy.
+  bytes talosconfig = 1;
+}
+
+message OmniconfigResponse {
+  // omniconfig is the omnictl client configuration to access the omni instance.
+  bytes omniconfig = 1;
+}
+
+message MachineLogsRequest {
+  // MachineId is the ID of the machine.
+  string machine_id = 1;
+  // Follow is whether to follow the logs.
+  bool follow = 2;
+  // TailLines is the number of lines to tail.
+  int32 tail_lines = 3;
+}
+
+message ValidateConfigRequest {
+  // Config represents raw configuration string to validate.
+  string config = 1;
+}
+
+message TalosconfigRequest {
+  // Raw indicates whether to generate an raw talosconfig or a regular one.
+  bool raw = 1;
+  // BreakGlass indicates whether to generate an operator break glass talosconfig or a regular one.
+  bool break_glass = 2;
+}
+
+message CreateServiceAccountRequest {
+  string armored_pgp_public_key = 1;
+  reserved 2;
+  // UseUserRole indicates whether to use the role of the creating user.
+  // When true, role will be ignored and the service account will be created with the role of the creating user.
+  bool use_user_role = 3;
+  string role = 4;
+  string name = 5;
+}
+
+message CreateServiceAccountResponse {
+  string public_key_id = 1;
+}
+
+message RenewServiceAccountRequest {
+  string name = 1;
+  string armored_pgp_public_key = 2;
+}
+
+message RenewServiceAccountResponse {
+  string public_key_id = 1;
+}
+
+message DestroyServiceAccountRequest {
+  string name = 1;
+}
+
+message ListServiceAccountsResponse {
+  message ServiceAccount {
+    message PgpPublicKey {
+      string id = 1;
+      string armored = 2;
+      google.protobuf.Timestamp expiration = 3;
+      google.protobuf.Timestamp created = 4;
+      google.protobuf.Timestamp last_used = 5;
+    }
+
+    string name = 1;
+    repeated PgpPublicKey pgp_public_keys = 2;
+    reserved 3;
+    string role = 4;
+    string last_active = 5;
+  }
+
+  repeated ServiceAccount service_accounts = 1;
+}
+
+message KubeconfigRequest {
+  bool service_account = 1;
+  google.protobuf.Duration service_account_ttl = 2;
+  string service_account_user = 3;
+  repeated string service_account_groups = 4;
+  string grant_type = 5;
+  bool break_glass = 6;
+  string oidc_cache_base_dir = 7;
+  bool oidc_cache_isolation = 8;
+}
+
+message KubernetesUpgradePreChecksRequest {
+  string new_version = 1;
+}
+
+message KubernetesUpgradePreChecksResponse {
+  bool ok = 1;
+  string reason = 2;
+}
+
+message KubernetesSSAOptions {
+  enum InventoryPolicy {
+    MUST_MATCH = 0;
+    ADOPT_IF_NO_INVENTORY = 1;
+    ADOPT_ALL = 2;
+  };
+
+  InventoryPolicy inventory_policy = 1;
+  google.protobuf.Duration reconcile_timeout = 2;
+  bool force_conflicts = 3;
+  bool no_prune = 4;
+}
+
+message KubernetesSyncManifestRequest {
+  bool dry_run = 1;
+  KubernetesSSAOptions ssa = 2;
+}
+
+message KubernetesSyncManifestResponse {
+  enum ResponseType {
+    UNKNOWN = 0;
+    MANIFEST = 1;
+    ROLLOUT = 2;
+  };
+
+  ResponseType response_type = 1;
+  string path = 2;
+  bytes object = 3;
+  string diff = 4;
+  bool skipped = 5;
+}
+
+enum SchematicBootloader {
+  BOOT_AUTO = 0;
+  BOOT_DUAL = 1;
+  BOOT_SD = 2;
+  BOOT_GRUB = 3;
+}
+
+message CreateSchematicRequest {
+  message Overlay {
+    string image = 1;
+    string name = 2;
+    string options = 3;
+  }
+
+  enum SiderolinkGRPCTunnelMode {
+    AUTO = 0;
+    DISABLED = 1;
+    ENABLED = 2;
+  }
+
+  repeated string extensions = 1;
+  repeated string extra_kernel_args = 2;
+  map<uint32, string> meta_values = 3;
+  string talos_version = 4;
+  string media_id = 5;
+  bool secure_boot = 6;
+  SiderolinkGRPCTunnelMode siderolink_grpc_tunnel_mode = 7;
+  string join_token = 8;
+  Overlay overlay = 9;
+  SchematicBootloader bootloader = 10;
+}
+
+message CreateSchematicFromRawRequest {
+  bytes raw_schematic = 1;
+}
+
+message CreateSchematicResponse {
+  string schematic_id = 1;
+  string pxe_url = 2;
+  bool grpc_tunnel_enabled = 3;
+  string schematic_yml = 4;
+}
+
+message GetSupportBundleRequest {
+  string cluster = 1;
+}
+
+message GetSupportBundleResponse {
+  message Progress {
+    string source = 1;
+    string error = 2;
+    string state = 3;
+    int32 total = 4;
+    int32 value = 5;
+  }
+
+  Progress progress = 1;
+  bytes bundle_data = 2;
+}
+
+enum AuditLogEventType {
+  AUDIT_LOG_EVENT_TYPE_UNSPECIFIED = 0;
+  AUDIT_LOG_EVENT_TYPE_CREATE = 1;
+  AUDIT_LOG_EVENT_TYPE_UPDATE = 2;
+  AUDIT_LOG_EVENT_TYPE_UPDATE_WITH_CONFLICTS = 3;
+  AUDIT_LOG_EVENT_TYPE_DESTROY = 4;
+  AUDIT_LOG_EVENT_TYPE_TEARDOWN = 5;
+  AUDIT_LOG_EVENT_TYPE_TALOS_ACCESS = 6;
+  AUDIT_LOG_EVENT_TYPE_K8S_ACCESS = 7;
+}
+
+enum AuditLogOrderByField {
+  AUDIT_LOG_ORDER_BY_FIELD_UNSPECIFIED = 0;
+  AUDIT_LOG_ORDER_BY_FIELD_DATE = 1;
+  AUDIT_LOG_ORDER_BY_FIELD_EVENT_TYPE = 2;
+  AUDIT_LOG_ORDER_BY_FIELD_RESOURCE_TYPE = 3;
+  AUDIT_LOG_ORDER_BY_FIELD_RESOURCE_ID = 4;
+  AUDIT_LOG_ORDER_BY_FIELD_CLUSTER_ID = 5;
+  AUDIT_LOG_ORDER_BY_FIELD_ACTOR = 6;
+}
+
+enum AuditLogOrderByDir {
+  AUDIT_LOG_ORDER_BY_DIR_UNSPECIFIED = 0;
+  AUDIT_LOG_ORDER_BY_DIR_ASC = 1;
+  AUDIT_LOG_ORDER_BY_DIR_DESC = 2;
+}
+
+// specifies start and end time (inclusive range) in <year>-<month>-<day> format. We pass time as string to avoid timezone issues.
+message ReadAuditLogRequest {
+  string start_time = 1;
+  string end_time = 2;
+  AuditLogOrderByField order_by_field = 3;
+  AuditLogOrderByDir order_by_dir = 4;
+  string search = 5;
+  AuditLogEventType event_type = 6;
+  string resource_type = 7;
+  string resource_id = 8;
+  string cluster_id = 9;
+  string actor = 10;
+}
+
+message ReadAuditLogResponse {
+  bytes audit_log = 1;
+}
+
+message ValidateJsonSchemaRequest {
+  string data = 1;
+  string schema = 2;
+}
+
+message ValidateJsonSchemaResponse {
+  message Error {
+    repeated Error errors = 1;
+
+    string schema_path = 2;
+    string data_path = 3;
+    string cause = 4;
+  }
+
+  repeated Error errors = 1;
+}
+
+message MaintenanceUpgradeRequest {
+  string machine_id = 1;
+  string version = 2;
+}
+
+message MaintenanceUpgradeResponse {
+}
+
+message GetMachineJoinConfigRequest {
+  bool use_grpc_tunnel = 1;
+  string join_token = 2;
+}
+
+message GetMachineJoinConfigResponse {
+  repeated string kernel_args = 1;
+  string config = 2;
+}
+
+message GenJoinTokenResponse {
+  string token = 1;
+}
+
+message CreateJoinTokenRequest {
+  string name = 1;
+  google.protobuf.Timestamp expiration_time = 2;
+}
+
+message CreateJoinTokenResponse {
+  string id = 1;
+}
+
+message ResetNodeUniqueTokenRequest {
+  string id = 1;
+}
+
+message ResetNodeUniqueTokenResponse {}
+
+message CreateUserRequest {
+  string email = 1;
+  string role = 2;
+}
+
+message CreateUserResponse {
+  string user_id = 1;
+}
+
+message UpdateUserRequest {
+  string email = 1;
+  string role = 2;
+}
+
+message DestroyUserRequest {
+  string email = 1;
+}
+
+message MachinePowerOffRequest {
+  // MachineId is the ID of the machine to power off (shutdown).
+  string machine_id = 1;
+}
+
+message MachinePowerOffResponse {}
+
+message MachinePowerOnRequest {
+  // MachineId is the ID of the machine to power on.
+  string machine_id = 1;
+}
+
+message MachinePowerOnResponse {}
+
+message ListUsersResponse {
+  message User {
+    string id = 1;
+    string email = 2;
+    string role = 3;
+    map<string, string> saml_labels = 4;
+    string last_active = 5;
+  }
+
+  repeated User users = 1;
+}
+
+service ManagementService {
+  rpc Kubeconfig(KubeconfigRequest) returns (KubeconfigResponse);
+  rpc Talosconfig(TalosconfigRequest) returns (TalosconfigResponse);
+  rpc Omniconfig(google.protobuf.Empty) returns (OmniconfigResponse);
+  rpc MachineLogs(MachineLogsRequest) returns (stream common.Data);
+  rpc ValidateConfig(ValidateConfigRequest) returns (google.protobuf.Empty);
+  rpc ValidateJSONSchema(ValidateJsonSchemaRequest) returns (ValidateJsonSchemaResponse);
+  rpc CreateServiceAccount(CreateServiceAccountRequest) returns (CreateServiceAccountResponse);
+  rpc RenewServiceAccount(RenewServiceAccountRequest) returns (RenewServiceAccountResponse);
+  rpc ListServiceAccounts(google.protobuf.Empty) returns (ListServiceAccountsResponse);
+  rpc DestroyServiceAccount(DestroyServiceAccountRequest) returns (google.protobuf.Empty);
+  rpc KubernetesUpgradePreChecks(KubernetesUpgradePreChecksRequest) returns (KubernetesUpgradePreChecksResponse);
+  rpc KubernetesSyncManifests(KubernetesSyncManifestRequest) returns (stream KubernetesSyncManifestResponse);
+  rpc CreateSchematic(CreateSchematicRequest) returns (CreateSchematicResponse);
+  rpc CreateSchematicFromRaw(CreateSchematicFromRawRequest) returns (CreateSchematicResponse);
+  rpc GetSupportBundle(GetSupportBundleRequest) returns (stream GetSupportBundleResponse);
+  rpc ReadAuditLog(ReadAuditLogRequest) returns (stream ReadAuditLogResponse);
+  rpc MaintenanceUpgrade(MaintenanceUpgradeRequest) returns (MaintenanceUpgradeResponse);
+  rpc GetMachineJoinConfig(GetMachineJoinConfigRequest) returns (GetMachineJoinConfigResponse);
+  rpc CreateJoinToken(CreateJoinTokenRequest) returns (CreateJoinTokenResponse);
+  rpc ResetNodeUniqueToken(ResetNodeUniqueTokenRequest) returns (ResetNodeUniqueTokenResponse);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc ListUsers(google.protobuf.Empty) returns (ListUsersResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (google.protobuf.Empty);
+  rpc DestroyUser(DestroyUserRequest) returns (google.protobuf.Empty);
+  rpc MachinePowerOff(MachinePowerOffRequest) returns (MachinePowerOffResponse);
+  rpc MachinePowerOn(MachinePowerOnRequest) returns (MachinePowerOnResponse);
+}

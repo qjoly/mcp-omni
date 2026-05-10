@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mcp-omni"
+version = "0.1.0"
+description = "MCP server for Omni Talos cluster management"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "grpcio>=1.60.0",
+    "protobuf>=4.25.0",
+    "cryptography>=42.0.0",
+]
+
+[project.optional-dependencies]
+build = [
+    "pyinstaller>=6.0.0",
+]
+
+[project.scripts]
+mcp-omni = "mcp_omni.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp_omni"]

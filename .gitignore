@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.spec.bak
+.env
+.env.*
+
+# Claude memory / local config — do not commit
+MEMORY.md
+src/mcp_omni/memory/
+claude_desktop_config.json

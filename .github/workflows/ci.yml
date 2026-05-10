@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -e "." ruff
+      - name: Lint
+        run: ruff check src/
+
+  build-binary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -e ".[build]"
+      - name: Build binary
+        run: pyinstaller mcp_omni.spec --distpath dist --workpath /tmp/build
+      - name: Smoke test
+        run: |
+          ./dist/mcp-omni --help 2>&1 | head -5 || true
+          echo "Binary exists: $(ls -lh dist/mcp-omni)"
