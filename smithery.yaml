@@ -24,6 +24,10 @@ startCommand:
       },
     })
 
+# Static server card hosted on GitHub Pages — bypasses Smithery's scan
+# (Smithery can't run uvx on their scanning infrastructure)
+# Served at: https://qjoly.github.io/mcp-omni/.well-known/mcp/server-card.json
+
 exampleConfig:
   omniEndpoint: "https://omni.example.com"
   omniServiceAccountKey: "eyJuYW1lIjoibXktbWNwIiwicGdwX2tleSI6Ii0tLS0tQkVHSU4..."
